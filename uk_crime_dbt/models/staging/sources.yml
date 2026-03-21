@@ -1,0 +1,48 @@
+version: 2
+
+sources:
+  - name: crime_db
+    database: crime_db
+    schema: public
+    tables:
+      - name: crimes
+        description: "Raw crime records loaded from UK Police API"
+        columns:
+          - name: crime_id
+            description: "Primary key"
+            tests:
+              - unique
+              - not_null
+          - name: category
+            tests:
+              - not_null
+          - name: month
+            tests:
+              - not_null
+          - name: latitude
+            tests:
+              - not_null
+          - name: longitude
+            tests:
+              - not_null
+
+models:
+  - name: stg_crimes
+    description: "Cleaned and standardised crimes staging model"
+    columns:
+      - name: crime_id
+        tests:
+          - unique
+          - not_null
+      - name: crime_category
+        tests:
+          - not_null
+      - name: crime_month
+        tests:
+          - not_null
+      - name: latitude
+        tests:
+          - not_null
+      - name: longitude
+        tests:
+          - not_null
