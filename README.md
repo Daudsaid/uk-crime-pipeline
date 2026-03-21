@@ -1,6 +1,6 @@
 # 🔍 UK Crime Pipeline
 
-A end-to-end **Data Engineering pipeline** that ingests real crime data from the UK Police API, stores it in PostgreSQL, and transforms it into analytical models using dbt.
+An end-to-end **Data Engineering pipeline** that ingests real crime data from the UK Police API, stores it in PostgreSQL, transforms it into analytical models using dbt, and is orchestrated with Apache Airflow.
 
 ---
 
@@ -28,6 +28,8 @@ transform.py         ← Cleans & structures data with pandas
       ├── mart_crimes_by_category
       ├── mart_crimes_by_street
       └── mart_monthly_trends
+
+  All steps orchestrated and scheduled daily via Apache Airflow
 ```
 
 ---
@@ -38,6 +40,8 @@ transform.py         ← Cleans & structures data with pandas
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)
 ![dbt](https://img.shields.io/badge/dbt-1.11-orange?logo=dbt)
 ![pandas](https://img.shields.io/badge/pandas-2.x-150458?logo=pandas)
+![Airflow](https://img.shields.io/badge/Airflow-2.9.1-017CEE?logo=apacheairflow)
+![Docker](https://img.shields.io/badge/Docker-28.3-2496ED?logo=docker)
 
 | Layer | Tool |
 |---|---|
@@ -45,6 +49,8 @@ transform.py         ← Cleans & structures data with pandas
 | Transform | `pandas` |
 | Load | `psycopg2` → PostgreSQL |
 | Modelling | dbt (staging + marts) |
+| Orchestration | Apache Airflow 2.9.1 |
+| Containerisation | Docker + Docker Compose |
 | Source | [UK Police API](https://data.police.uk/docs/) |
 
 ---
@@ -59,7 +65,10 @@ uk-crime-pipeline/
 ├── config.py           # DB connection config
 ├── main.py             # Pipeline orchestrator
 ├── requirements.txt
+├── docker-compose.yaml # Airflow stack
 ├── .env.example        # Environment variable template
+├── dags/
+│   └── uk_crime_dag.py # Airflow DAG definition
 └── uk_crime_dbt/
     ├── dbt_project.yml
     ├── models/
@@ -110,12 +119,53 @@ cp .env.example .env
 python main.py
 ```
 
-### 5. Run dbt transformations
+### 5. Run dbt transformations manually
 
 ```bash
 cd uk_crime_dbt
 dbt run
 dbt test
+```
+
+---
+
+## 🔄 Airflow Orchestration
+
+The pipeline runs automatically on a **daily schedule** via Apache Airflow.
+
+### Start Airflow
+
+```bash
+# First time only
+echo "AIRFLOW_UID=$(id -u)" > .env
+docker compose up airflow-init
+
+# Start all services
+docker compose up -d
+```
+
+### Access the UI
+
+Open [http://localhost:8080](http://localhost:8080) — login with `airflow / airflow`
+
+### DAG: `uk_crime_pipeline`
+
+```
+extract → transform → load → dbt_run → dbt_test
+```
+
+| Task | Operator | Description |
+|---|---|---|
+| `extract` | PythonOperator | Fetches crime data from UK Police API |
+| `transform` | PythonOperator | Cleans and structures raw records |
+| `load` | PythonOperator | Loads transformed data into PostgreSQL |
+| `dbt_run` | BashOperator | Runs all dbt models |
+| `dbt_test` | BashOperator | Runs all dbt tests |
+
+### Stop Airflow
+
+```bash
+docker compose down
 ```
 
 ---
