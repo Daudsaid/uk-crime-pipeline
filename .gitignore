@@ -7,3 +7,14 @@ uk_crime_dbt/target/
 uk_crime_dbt/logs/
 uk_crime_dbt/.user.yml
 uk_crime_dbt/profiles.yml
+
+# Airflow
+logs/
+plugins/
+config/
+docker-compose.yaml
+
+# Airflow runtime
+logs/
+plugins/
+config/
