@@ -162,11 +162,15 @@ extract → transform → load → dbt_run → dbt_test
 | `dbt_run` | BashOperator | Runs all dbt models |
 | `dbt_test` | BashOperator | Runs all dbt tests |
 
+
 ### Stop Airflow
 
 ```bash
 docker compose down
 ```
+### DAG Graph
+
+![DAG Graph](images/dag_graph.png)
 
 ---
 
