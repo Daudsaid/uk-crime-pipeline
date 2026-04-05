@@ -7,7 +7,7 @@ load_dotenv()
 API_BASE_URL = "https://data.police.uk/api"
 LATITUDE = 51.5074
 LONGITUDE = -0.1278
-MONTHS_TO_FETCH = 3
+MONTHS_TO_FETCH = 12
 
 # PostgreSQL
 DB_CONFIG = {
